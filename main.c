@@ -38,5 +38,14 @@ int main() {
   }
   printf("socket successfully bound to address\n");
 
+  // Écouter les transmissions entrantes
+
+  // SOMAXCONN = nombre max de conections en attente à la fois (128 par défaut)
+  if (listen(sockfd, SOMAXCONN) != 0) {
+    perror("webserver (listen)");
+    return 1;
+  }
+  printf("server listening for connections\n");
+
   return 0;
 }
