@@ -2,6 +2,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 #define PORT 8080
 
@@ -17,7 +18,7 @@ int main() {
 
     return 1;
   }
-  printf("socket created successfully\n");
+  printf("Socket créé avec succès\n");
 
   // Bind le socket à l'addresse
 
@@ -36,7 +37,7 @@ int main() {
     perror("webserver (bind)");
     return 1;
   }
-  printf("socket successfully bound to address\n");
+  printf("Socket lié à une addresse avec succès\n");
 
   // Écouter les transmissions entrantes
 
@@ -45,7 +46,24 @@ int main() {
     perror("webserver (listen)");
     return 1;
   }
-  printf("server listening for connections\n");
+  printf("Serveur en écoute pour des connections\n");
+
+  // Accepter les connections en attente
+
+  // Boucle continue pour continuer à accepter des nouvelles connections
+  for (;;) {
+    // Paramètres : socket, adresse du socket avec transtypage, taille de l'adresse avec transtypage
+    int newsockfd = accept(sockfd, (struct sockaddr *)&host_addr, (socklen_t *)&host_addrlen);
+    if (newsockfd < 0) {
+      perror("webserver (accept)");
+      continue;
+    }
+
+    printf("Connection acceptée\n");
+
+    // Fermer la connection à la fin des intéractions
+    close(newsockfd);
+  }
 
   return 0;
 }
