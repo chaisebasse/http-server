@@ -5,8 +5,12 @@
 #include <unistd.h>
 
 #define PORT 8080
+#define BUFFER_SIZE 2048
 
 int main() {
+  // Création du buffer
+  char buffer[BUFFER_SIZE];
+
   // Création du socket
 
   // Paramètres de la fonction : famille d'adresses, type de socket, protocole ip
@@ -61,9 +65,29 @@ int main() {
 
     printf("Connection acceptée\n");
 
+    int valread = read(newsockfd, buffer, BUFFER_SIZE);
+    if (valread < 0) {
+      perror("webserver (read)");
+      continue;
+    }
+
     // Fermer la connection à la fin des intéractions
     close(newsockfd);
   }
 
   return 0;
 }
+
+
+// Fonction d'intéraction socket-client
+
+// void handle_client(int client_socket) {
+//   char buffer[BUFFER_SIZE];
+
+//   int valread = read(client_socket, buffer, BUFFER_SIZE);
+//   if (valread < 0) {
+//     perror("webserver (read)");
+//     continue;
+//   }
+
+// }
