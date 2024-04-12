@@ -30,15 +30,19 @@ int main() {
 
   // Bind le socket à l'addresse
 
-  // Déclaration et initialisation de l'adresse
+  // Déclaration et initialisation de l'adresse de l'hôte et sa taille
   struct sockaddr_in host_addr;
+  int host_addrlen = sizeof(host_addr);
   host_addr.sin_family = AF_INET;
   // Convertir l'ordre des octets de l'hôte à l'ordre des octets du réseau
   host_addr.sin_port = htons(PORT);
   // Conversion de l'ordre des octets 1a celui du réseau recommandée par man 7 ip mais pas obligatoire
   host_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-  int host_addrlen = sizeof(host_addr);
+
+  // Déclaration de l'adresse du client et sa taille
+  struct sockaddr_in client_addr;
+  int client_addrlen = sizeof(client_addr);
 
   // Paramètres de la fonction : adresse choisie convertie en type accepté par la fonction, taille de l'adresse
   if (bind(sockfd, (struct sockaddr *)&host_addr, host_addrlen) != 0) {
@@ -58,8 +62,9 @@ int main() {
 
   // Accepter les connections en attente
 
-  // Boucle continue pour continuer à accepter des nouvelles connections
+  // Boucle continue pour continuer à accepter de nouvelles connections
   for (;;) {
+    // On travaille ici avec le socket accepté
     // Paramètres : socket, adresse du socket avec transtypage, taille de l'adresse avec transtypage
     int newsockfd = accept(sockfd, (struct sockaddr *)&host_addr, (socklen_t *)&host_addrlen);
     if (newsockfd < 0) {
@@ -69,12 +74,31 @@ int main() {
 
     printf("Connection acceptée\n");
 
+    // Prendre l'adresse du client
+
+    // Paramètres : socket, adresse du client avec transtypage, taille de l'adresse avec transtypage
+    int sockn = getsockname(newsockfd, (struct sockaddr *)&client_addr, (socklen_t *)&client_addrlen);
+    if (sockn < 0) {
+      perror("webserver (getsockname)");
+      continue;
+    }
+
+    // Lire dans le socket
+
+    // Paramètres : socket, l'endroit où on lit (buffer), taille du buffer
     int valread = read(newsockfd, buffer, BUFFER_SIZE);
     if (valread < 0) {
       perror("webserver (read)");
       continue;
     }
 
+
+    // On affiche la représentation en string du port et de l'adresse IP du client
+    printf("[%s:%u]\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+
+    // Écrire dans le socket
+
+    // Paramètres : socket, ce qu'on écrit, taille de ce qu'on écrit
     int valwrite = write(newsockfd, resp, strlen(resp));
     if (valwrite < 0) {
       perror("webserver (write)");
