@@ -1,6 +1,7 @@
+#include <stdio.h>
+#include <string.h>
 #include <arpa/inet.h>
 #include <errno.h>
-#include <stdio.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -10,12 +11,15 @@
 int main() {
   // Création du buffer
   char buffer[BUFFER_SIZE];
+  char resp[] = "HTTP/1.0 200 OK\r\n"
+                "Server: webserver-c\r\n"
+                "Content-type: text/html\r\n\r\n"
+                "<html>hello, world</html>\r\n";
 
   // Création du socket
 
   // Paramètres de la fonction : famille d'adresses, type de socket, protocole ip
   int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-
   if (sockfd == -1) {
     // afficher ce message et le message d'erreur du système avec perror
     perror("webserver (socket)");
@@ -70,6 +74,13 @@ int main() {
       perror("webserver (read)");
       continue;
     }
+
+    int valwrite = write(newsockfd, resp, strlen(resp));
+    if (valwrite < 0) {
+      perror("webserver (write)");
+      continue;
+    }
+
 
     // Fermer la connection à la fin des intéractions
     close(newsockfd);
