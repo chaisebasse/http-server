@@ -8,6 +8,40 @@
 #define PORT 8080
 #define BUFFER_SIZE 2048
 
+void handle_client(int client_socket, struct sockaddr_in client_addr, const char *resp) {
+  char buffer[BUFFER_SIZE];
+
+  // Lire dans le socket
+
+  int valread = read(client_socket, buffer, BUFFER_SIZE);
+  if (valread < 0) {
+    perror("webserver (read)");
+    return;
+  }
+
+  // Lire la requête
+
+  // On initialise la méthode de la requête (<method>), le chemin (<path>) et la version (<version>)
+  char method[BUFFER_SIZE], uri[BUFFER_SIZE], version[BUFFER_SIZE];
+  // On lit les trois éléments du buffer
+  sscanf(buffer, "%s %s %s", method, uri, version);
+  // On affiche la représentation en string du port, de l'adresse IP du client et de ses requêtes
+  printf("[%s:%u] %s %s %s\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), method, uri, version);
+
+  // Écrire dans le socket
+
+  // Paramètres : socket, ce qu'on écrit, taille de ce qu'on écrit
+  int valwrite = write(client_socket, resp, strlen(resp));
+  if (valwrite < 0) {
+    perror("webserver (write)");
+    return;
+  }
+
+  close(client_socket); // Close client socket after processing
+}
+
+
+
 int main() {
   // Création du buffer
   char buffer[BUFFER_SIZE];
@@ -23,7 +57,6 @@ int main() {
   if (sockfd == -1) {
     // afficher ce message et le message d'erreur du système avec perror
     perror("webserver (socket)");
-
     return 1;
   }
   printf("Socket créé avec succès\n");
@@ -83,34 +116,8 @@ int main() {
       continue;
     }
 
-    // Lire dans le socket
-
-    // Paramètres : socket, l'endroit où on lit (buffer), taille du buffer
-    int valread = read(newsockfd, buffer, BUFFER_SIZE);
-    if (valread < 0) {
-      perror("webserver (read)");
-      continue;
-    }
-
-    // Lire la requête
-
-    // On initialise la méthode de la requête (<method>), le chemin (<path>) et la version (<version>)
-    char method[BUFFER_SIZE], uri[BUFFER_SIZE], version[BUFFER_SIZE];
-    // On lit les trois éléments du buffer
-    sscanf(buffer, "%s %s %s", method, uri, version);
-
-    // On affiche la représentation en string du port, de l'adresse IP du client et de ses requêtes
-    printf("[%s:%u] %s %s %s\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), method, uri, version);
-
-    // Écrire dans le socket
-
-    // Paramètres : socket, ce qu'on écrit, taille de ce qu'on écrit
-    int valwrite = write(newsockfd, resp, strlen(resp));
-    if (valwrite < 0) {
-      perror("webserver (write)");
-      continue;
-    }
-
+    // Appel de la fonction gérant le cliant
+    handle_client(newsockfd, client_addr, resp);
 
     // Fermer la connection à la fin des intéractions
     close(newsockfd);
@@ -118,17 +125,3 @@ int main() {
 
   return 0;
 }
-
-
-// Fonction d'intéraction socket-client
-
-// void handle_client(int client_socket) {
-//   char buffer[BUFFER_SIZE];
-
-//   int valread = read(client_socket, buffer, BUFFER_SIZE);
-//   if (valread < 0) {
-//     perror("webserver (read)");
-//     continue;
-//   }
-
-// }
