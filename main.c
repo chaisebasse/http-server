@@ -92,9 +92,15 @@ int main() {
       continue;
     }
 
+    // Lire la requête
 
-    // On affiche la représentation en string du port et de l'adresse IP du client
-    printf("[%s:%u]\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+    // On initialise la méthode de la requête (<method>), le chemin (<path>) et la version (<version>)
+    char method[BUFFER_SIZE], uri[BUFFER_SIZE], version[BUFFER_SIZE];
+    // On lit les trois éléments du buffer
+    sscanf(buffer, "%s %s %s", method, uri, version);
+
+    // On affiche la représentation en string du port, de l'adresse IP du client et de ses requêtes
+    printf("[%s:%u] %s %s %s\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), method, uri, version);
 
     // Écrire dans le socket
 
