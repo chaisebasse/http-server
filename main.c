@@ -8,48 +8,11 @@
 #define PORT 8080
 #define BUFFER_SIZE 2048
 
-void handle_client(int client_socket, struct sockaddr_in client_addr, const char *resp) {
-  char buffer[BUFFER_SIZE];
-
-  // Lire dans le socket
-
-  int valread = read(client_socket, buffer, BUFFER_SIZE);
-  if (valread < 0) {
-    perror("webserver (read)");
-    return;
-  }
-
-  // Lire la requête
-
-  // On initialise la méthode de la requête (<method>), le chemin (<path>) et la version (<version>)
-  char method[BUFFER_SIZE], uri[BUFFER_SIZE], version[BUFFER_SIZE];
-  // On lit les trois éléments du buffer
-  sscanf(buffer, "%s %s %s", method, uri, version);
-  // On affiche la représentation en string du port, de l'adresse IP du client et de ses requêtes
-  printf("[%s:%u] %s %s %s\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), method, uri, version);
-
-  // Écrire dans le socket
-
-  // Paramètres : socket, ce qu'on écrit, taille de ce qu'on écrit
-  int valwrite = write(client_socket, resp, strlen(resp));
-  if (valwrite < 0) {
-    perror("webserver (write)");
-    return;
-  }
-
-  close(client_socket); // Close client socket after processing
-}
-
-
+void serve_file(int client_socket, const char *file_path);
+void handle_client(int client_socket, struct sockaddr_in client_addr);
+const char *get_content_type(const char *file_path);
 
 int main() {
-  // Création du buffer
-  char buffer[BUFFER_SIZE];
-  char resp[] = "HTTP/1.0 200 OK\r\n"
-                "Server: webserver-c\r\n"
-                "Content-type: text/html\r\n\r\n"
-                "<html>hello, world</html>\r\n";
-
   // Création du socket
 
   // Paramètres de la fonction : famille d'adresses, type de socket, protocole ip
@@ -71,7 +34,6 @@ int main() {
   host_addr.sin_port = htons(PORT);
   // Conversion de l'ordre des octets 1a celui du réseau recommandée par man 7 ip mais pas obligatoire
   host_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-
 
   // Déclaration de l'adresse du client et sa taille
   struct sockaddr_in client_addr;
@@ -117,11 +79,101 @@ int main() {
     }
 
     // Appel de la fonction gérant le cliant
-    handle_client(newsockfd, client_addr, resp);
+    handle_client(newsockfd, client_addr);
 
     // Fermer la connection à la fin des intéractions
     close(newsockfd);
   }
 
   return 0;
+}
+
+void handle_client(int client_socket, struct sockaddr_in client_addr) {
+  // Ce buffer sert a lire les données entrantes du client
+  char buffer[BUFFER_SIZE];
+
+  // Lire dans le socket
+
+  int valread = read(client_socket, buffer, BUFFER_SIZE);
+  if (valread < 0) {
+    perror("webserver (read)");
+    return;
+  }
+
+  // Lire la requête
+
+  // On initialise la méthode de la requête (<method>), le chemin (<path>) et la version (<version>)
+  char method[BUFFER_SIZE], uri[BUFFER_SIZE], version[BUFFER_SIZE];
+  // On lit les trois éléments du buffer
+  sscanf(buffer, "%s %s %s", method, uri, version);
+  // On affiche la représentation en string du port, de l'adresse IP du client et de ses requêtes
+  printf("[%s:%u] %s %s %s\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), method, uri, version);
+
+  // Déterminer le chemin requêté
+  char file_path[BUFFER_SIZE];
+  snprintf(file_path, sizeof(file_path), "./%.*s", (int)(sizeof(file_path) - 3), uri);
+
+  // Servir le fichier requêté
+  if (strcmp(uri, "/index.html") == 0) {
+    serve_file(client_socket, "index.html");
+  } else if (strcmp(uri, "/style.css") == 0) {
+    serve_file(client_socket, "style.css");
+  } else if (strcmp(uri, "/application.js") == 0) {
+    serve_file(client_socket, "application.js");
+  } else {
+    // Répondre avec Error 404 pour d'autres URI
+    const char *not_found_msg = "HTTP/1.0 404 Not Found\r\n\r\n<html><body><h1>404 Not Found</h1></body></html>\r\n";
+    write(client_socket, not_found_msg, strlen(not_found_msg));
+  }
+
+  close(client_socket);
+}
+
+void serve_file(int client_socket, const char *file_path) {
+  FILE *file = fopen(file_path, "rb");
+  if (file == NULL) {
+    perror("webserver (fopen)");
+    // Répondre avec Error 404 si le fichier n'existe pas
+    const char *not_found_msg = "HTTP/1.0 404 Not Found\r\n\r\n<html><body><h1>404 Not Found</h1></body></html>\r\n";
+    write(client_socket, not_found_msg, strlen(not_found_msg));
+    return;
+  }
+
+  // Déterminer le type du contenu en fonction de l'extension
+  const char *content_type = get_content_type(file_path); // On admet que index.html contient de l'HTML
+
+  // Construire et envoyer le header HTTP avec le type du contenu
+  char header[BUFFER_SIZE];
+  snprintf(header, sizeof(header), "HTTP/1.0 200 OK\r\nServer: webserver-c\r\nContent-Type: %s\r\n\r\n", content_type);
+  write(client_socket, header, strlen(header));
+
+  // Envoyer le contenu du fichier
+  char buffer[BUFFER_SIZE];
+  size_t bytes_read;
+  while ((bytes_read = fread(buffer, 1, BUFFER_SIZE, file)) > 0) {
+    if (write(client_socket, buffer, bytes_read) < 0) {
+      perror("webserver (write)");
+      break;
+    }
+  }
+
+  fclose(file);
+}
+
+const char *get_content_type(const char *file_path) {
+  const char *content_type = "application/octet-stream"; // Type de contenu par défaut (données binaires)
+
+  // Trouver la dernière apparition de '.' pour prendre l'extension du fichier
+  const char *extension = strrchr(file_path, '.');
+  if (extension != NULL) {
+    if (strcmp(extension, ".html") == 0 || strcmp(extension, ".htm") == 0) {
+      content_type = "text/html";
+    } else if (strcmp(extension, ".css") == 0) {
+      content_type = "text/css";
+    } else if (strcmp(extension, ".js") == 0) {
+      content_type = "application/javascript";
+    }
+  }
+
+  return content_type;
 }
