@@ -8,7 +8,7 @@
 #define PORT 8080
 #define BUFFER_SIZE 2048
 
-void serve_file(int client_socket, const char *file_path);
+void serve_file(int client_socket, const char *file_path, const char *file_extension);
 void handle_client(int client_socket, struct sockaddr_in client_addr);
 const char *get_content_type(const char *file_path);
 
@@ -113,23 +113,32 @@ void handle_client(int client_socket, struct sockaddr_in client_addr) {
   char file_path[BUFFER_SIZE];
   snprintf(file_path, sizeof(file_path), "./%.*s", (int)(sizeof(file_path) - 3), uri);
 
-  // Servir le fichier requêté
-  if (strcmp(uri, "/index.html") == 0) {
-    serve_file(client_socket, "index.html");
-  } else if (strcmp(uri, "/style.css") == 0) {
-    serve_file(client_socket, "style.css");
-  } else if (strcmp(uri, "/application.js") == 0) {
-    serve_file(client_socket, "application.js");
-  } else {
-    // Répondre avec Error 404 pour d'autres URI
-    const char *not_found_msg = "HTTP/1.0 404 Not Found\r\n\r\n<html><body><h1>404 Not Found</h1></body></html>\r\n";
-    write(client_socket, not_found_msg, strlen(not_found_msg));
+  // Déterminer l'extension du fichier selon l'URI
+  const char *file_extension = strrchr(uri, '.');
+  if (file_extension != NULL) {
+    file_extension++; // On passe le '.' qui précède le nom de l'extension
   }
+
+  // Définir les extensions autorisées
+  const char *allowed_extensions[] = { "html", "css", "js" };
+  int num_allowed_extensions = sizeof(allowed_extensions) / sizeof(allowed_extensions[0]);
+
+  // Vérifier si le fichier requêté est autorisé
+  int is_allowed_extension = 0;
+  for (int i = 0; i < num_allowed_extensions; i++) {
+    if (file_extension != NULL && strcmp(file_extension, allowed_extensions[i]) == 0) {
+      is_allowed_extension = 1;
+      break;
+    }
+  }
+
+  // Servir le fichier requêté
+  serve_file(client_socket, file_path, file_extension);
 
   close(client_socket);
 }
 
-void serve_file(int client_socket, const char *file_path) {
+void serve_file(int client_socket, const char *file_path, const char *file_extension) {
   FILE *file = fopen(file_path, "rb");
   if (file == NULL) {
     perror("webserver (fopen)");
@@ -141,6 +150,12 @@ void serve_file(int client_socket, const char *file_path) {
 
   // Déterminer le type du contenu en fonction de l'extension
   const char *content_type = get_content_type(file_path); // On admet que index.html contient de l'HTML
+
+  if (strcmp(file_extension, "css") == 0) {
+      content_type = "text/css"; // Définir type de contenu comme CSS pour les fichiers .css
+  } else if (strcmp(file_extension, "js") == 0) {
+      content_type = "application/javascript"; // Définir type de contenu comme Javscript pour les fichiers .js
+  }
 
   // Construire et envoyer le header HTTP avec le type du contenu
   char header[BUFFER_SIZE];
