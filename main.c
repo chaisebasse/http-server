@@ -111,6 +111,8 @@ void handle_client(int client_socket, struct sockaddr_in client_addr) {
 
   // Déterminer le chemin requêté
   char file_path[BUFFER_SIZE];
+  const char *subfolder_path = "./test_projet_univ/";
+
   if (strlen(uri) == 0 || strcmp(uri, "/") == 0) {
     // Gérer le cas où aucun chemin spécifique n'est requêté
     snprintf(file_path, sizeof(file_path), "./index.html");
@@ -127,7 +129,9 @@ void handle_client(int client_socket, struct sockaddr_in client_addr) {
       }
 
       // Copier l'URI dans file_path avec le bon format
-      snprintf(file_path, sizeof(file_path), "./%.*s", uri_length, uri);
+      // snprintf(file_path, sizeof(file_path), "./%.*s", uri_length, uri);
+      snprintf(file_path, sizeof(file_path), "%s%s", subfolder_path, uri);
+
 
       // S'assurer que file_path se termine avec NULL
       file_path[sizeof(file_path) - 1] = '\0';
@@ -170,12 +174,6 @@ void serve_file(int client_socket, const char *file_path, const char *file_exten
 
   // Déterminer le type du contenu en fonction de l'extension
   const char *content_type = get_content_type(file_path); // On admet que index.html contient de l'HTML
-
-  if (strcmp(file_extension, "css") == 0) {
-      content_type = "text/css"; // Définir type de contenu comme CSS pour les fichiers .css
-  } else if (strcmp(file_extension, "js") == 0) {
-      content_type = "application/javascript"; // Définir type de contenu comme Javscript pour les fichiers .js
-  }
 
   // Construire et envoyer le header HTTP avec le type du contenu
   char header[BUFFER_SIZE];
