@@ -111,7 +111,27 @@ void handle_client(int client_socket, struct sockaddr_in client_addr) {
 
   // Déterminer le chemin requêté
   char file_path[BUFFER_SIZE];
-  snprintf(file_path, sizeof(file_path), "./%.*s", (int)(sizeof(file_path) - 3), uri);
+  if (strlen(uri) == 0 || strcmp(uri, "/") == 0) {
+    // Gérer le cas où aucun chemin spécifique n'est requêté
+    snprintf(file_path, sizeof(file_path), "./index.html");
+  } else {
+      // Construire le fichier selon le chemin requêté
+      // Calculer la taille max de l'URI
+      int max_uri_length = sizeof(file_path) - 3;
+      // Prendre la taille de l'URI
+      int uri_length = strlen(uri);
+
+      // S'assurer que la taille de l'URI n'excède pas la taille max
+      if (uri_length > max_uri_length) {
+          uri_length = max_uri_length; // Écorcher si nécessaire
+      }
+
+      // Copier l'URI dans file_path avec le bon format
+      snprintf(file_path, sizeof(file_path), "./%.*s", uri_length, uri);
+
+      // S'assurer que file_path se termine avec NULL
+      file_path[sizeof(file_path) - 1] = '\0';
+  }
 
   // Déterminer l'extension du fichier selon l'URI
   const char *file_extension = strrchr(uri, '.');
