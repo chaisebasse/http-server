@@ -1,175 +1,165 @@
 <!DOCTYPE html>
 <html class="no-js" lang="en">
-<head>
-    <meta charset="utf-8"/>
-    <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
-    <meta content="width=device-width, initial-scale=1" name="viewport"/>
-    <title>Notre Projet</title>
-    <link href="favicon.ico" rel="shortcut icon" type="image/x-icon"/>
-    <link href="favicon.ico" rel="icon" type="image/x-icon"/>
-    <link href="css" rel="stylesheet"/>
-    <script src="https://kit.fontawesome.com/999882a729.js" crossorigin="anonymous"></script>
-    <link href="bootstrap.min.css" rel="stylesheet"/>
-    <link href="style.css" rel="stylesheet"/>
-</head>
-<body>
-<div class="shadow-large" id="mobile-menu-open">
-    <i class="fa-solid fa-chevron-down"></i>
-</div>
-<div id="lead">
-    <div id="lead-content">
-        <h1>SERVEUR HTTP</h1>
-        <h2>Saida , Ermanno , Alexis</h2>
-        <h3>OG3 TD10</h3>
-        <a class="btn-rounded-white" href="#">Download Resume</a>
-    </div>
-    <!-- End #lead-content -->
-    <div id="lead-overlay"></div>
-    <div id="lead-down">
-        <span>
-            <i aria-hidden="true" class="fa fa-chevron-down"></i>
-        </span>
-    </div>
-    <!-- End #lead-down -->
-</div>
-<!-- End #lead -->
-<div id="about">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-4">
-                <h2 class="heading">Sur le projet</h2>
+    <head>
+        <meta charset="utf-8"/>
+        <meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+        <meta content="width=device-width, initial-scale=1" name="viewport"/>
+        <title>Notre Projet</title>
+        <link href="favicon.ico" rel="shortcut icon" type="image/x-icon"/>
+        <link href="favicon.ico" rel="icon" type="image/x-icon"/>
+        <link href="css" rel="stylesheet"/>
+        <script src="https://kit.fontawesome.com/999882a729.js" crossorigin="anonymous"></script>
+        <link href="bootstrap.min.css" rel="stylesheet"/>
+        <link href="styles.css" rel="stylesheet"/>
+    </head>
+    <body>
+        <div class="shadow-large" id="mobile-menu-open">
+            <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <div id="lead">
+            <div id="lead-content">
+                <h1>SERVEUR HTTP</h1>
+                <h2>Saida , Ermanno , Alexis</h2>
+                <h3>OG3 TD10</h3>
+                <a class="btn-rounded-white" href="#">Download Resume</a>
             </div>
-            <div class="col-md-8">
-                <p>Nous voulons créer un serveur HTTP local en C.</p>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- End #about -->
-<div class="background-alt" id="experience">
-    <h2 class="heading">Etapes du Projet</h2>
-    <div id="experience-timeline">
-        <div data-date="Introduction">
-            <h3>Introduction</h3>
-            <h4>Organisation et Collaboration</h4>
-            <p>
-                Dans le cadre de notre projet de création d'un serveur web en langage C, nous avons investi du temps et des efforts dans l'organisation de notre collaboration. À trois, nous avons mis en place une infrastructure solide pour assurer une coordination efficace et un travail harmonieux sur notre projet.
-            </p>
-        </div>
-        <div data-date="Etape 1: Protocoles et Couches">
-            <h3>Etape 1: Protocoles et Couches</h3>
-            <h4>Compréhension des Serveurs Web et Protocoles</h4>
-            <p>
-                Dans cette étape, nous avons entrepris la création d'un serveur web en langage C. Notre objectif principal était de mieux comprendre le fonctionnement des serveurs web et de la programmation des sockets, des éléments essentiels pour la communication sur le réseau.
-            </p>
-        </div>
-        <div data-date="Etape 2: Création d'un Socket">
-            <h3>Etape 2: Création d'un Socket</h3>
-            <h4>Mise en place de la Communication Réseau</h4>
-            <p>
-                Ensuite, nous nous sommes lancés dans la création d'un socket en langage C, qui constitue le point de départ de notre serveur web. À travers des appels systèmes et des références aux pages de manuel, nous avons appris à créer et à gérer des sockets, pierre angulaire de la communication réseau.
-            </p>
-        </div>
-        <div data-date="Etape 3: Liaison et Écoute">
-            <h3>Etape 3: Liaison et Écoute</h3>
-            <h4>Préparation du Serveur pour les Connexions Entrantes</h4>
-            <p>
-                Une fois le socket créé, nous l'avons lié à une adresse locale et mis en place son écoute pour les connexions entrantes. Cette étape est cruciale pour permettre au serveur web de recevoir et de traiter les demandes des clients.
-            </p>
-        </div>
-        <div data-date="Etape 4: Acceptation des Connexions">
-            <h3>Etape 4: Acceptation des Connexions</h3>
-            <h4>Gestion des Connexions Entrantes</h4>
-            <p>
-                Nous avons ensuite décrit en détail le processus d'acceptation des connexions entrantes, qui consiste à créer un nouveau socket pour chaque connexion établie avec le serveur.
-            </p>
-        </div>
-        <div data-date="Etape 5: Lecture et Réponse">
-            <h3>Etape 5: Lecture et Réponse</h3>
-            <h4>Communication avec les Clients</h4>
-            <p>
-                L'étape suivante a été d'apprendre à lire les requêtes HTTP des clients et à envoyer des réponses appropriées, en suivant le format et les règles du protocole HTTP. Cette étape est essentielle pour assurer une communication efficace entre le serveur web et les clients.
-            </p>
-        </div>
-        <div data-date="Etape 6: Compilation et Test">
-            <h3>Etape 6: Compilation et Test</h3>
-            <h4>Vérification du Bon Fonctionnement</h4>
-            <p>
-                Enfin, nous avons expliqué comment compiler le serveur web et le tester en accédant à l'adresse locale via un navigateur. Cela nous a permis de vérifier le bon fonctionnement du serveur et de corriger d'éventuels problèmes rencontrés lors du développement.
-            </p>
-        </div>
-    </div>
-</div>
-<!-- End #experience -->
-<div id="education">
-    <h2 class="heading">Education</h2>
-    <div class="education-block">
-        <h3>University of Paris Nanterre</h3>
-        <span class="education-date">Sept 2023 - May 2024</span>
-        <h4>Bachelor of Science in Computer Science</h4>
-        <p>
-            La double Licence en Économie Gestion (parcours Gestion) et en MIASHS (parcours MIAGE) offre aux étudiants la possibilité d'obtenir deux diplômes dès le début de leur cursus universitaire. Cette formation sélective permet aux étudiants d'être inscrits simultanément dans les deux programmes dès le premier semestre. Elle est accessible via un voeu spécifique sur Parcoursup.
-
-			La Licence 3 (L3) de cette double Licence permet aux étudiants de se spécialiser à la fois en informatique et en gestion. Elle vise à fournir des bases solides dans tous les domaines de l'informatique et du management avant de se spécialiser davantage au niveau du master.</p>
-    </div>
-
-<!-- End #projects -->
-<div id="contact">
-    <h2>Get in Touch</h2>
-    <div id="contact-form">
-        <form
-  action="https://formspree.io/f/moqgpgbb"
-  method="POST"
->
-  <label>
-    Your email:
-    <input type="email" name="email">
-  </label>
-  <label>
-    Your message:
-    <textarea name="message"></textarea>
-  </label>
-  <!-- your other form fields go here -->
-  <button type="submit">Send</button>
-</form>
-    </div>
-    <!-- End #contact-form -->
-</div>
-<!-- End #contact -->
-<footer>
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-5 copyright">
-                <p>
-                    Copyright © Saida , Ermanno , Alexis
-                </p>
-            </div>
-            <div class="col-sm-2 top">
-                <span id="to-top">
-                    <i aria-hidden="true" class="fa fa-chevron-up"></i>
+            <div id="lead-overlay"></div>
+            <div id="lead-down">
+                <span>
+                    <i aria-hidden="true" class="fa fa-chevron-down"></i>
                 </span>
             </div>
-            <div class="col-sm-5 social">
-                <ul>
-                    <li>
-                        <a href="https://github.com/chaisebasse/http-server" target="_blank"><i aria-hidden="true" class="fa fa-github"></i></a>
-                    </li>
-                    <li>
-                        <a href="https://www.facebook.com/universite.paris.nanterre/" target="_blank"><i aria-hidden="true" class="fa fa-facebook"></i></a>
-                    </li>
-                    <li>
-                        <a href="https://moacloud.com/iframe/wDLTOwzI0n" target="_blank"><i aria-hidden="true" class="fa-solid fa-jedi"></i></a>
-                    </li>
-                    <li>
-                        <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank"><i aria-hidden="true" class="fa-solid fa-book-journal-whills"></i></a>
-                    </li>
-                </ul>
+        </div>
+        <div id="about">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h2 class="heading">Sur le projet</h2>
+                    </div>
+                    <div class="col-md-8">
+                        <p>Nous voulons créer un serveur HTTP local en C.</p>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</footer>
-<!-- End footer -->
-<script src="jquery.min.js"></script>
-<script src="scripts.min.js"></script>
-</body>
+        <!-- End #about -->
+        <div class="background-alt" id="experience">
+            <h2 class="heading">Etapes du Projet</h2>
+            <div id="experience-timeline">
+                <div data-date="Introduction">
+                    <h3>Introduction</h3>
+                    <h4>Organisation et Collaboration</h4>
+                    <p>
+                        Dans le cadre de notre projet de création d'un serveur web en langage C, nous avons investi du temps et des efforts dans l'organisation de notre collaboration. À trois, nous avons mis en place une infrastructure solide pour assurer une coordination efficace et un travail harmonieux sur notre projet.
+                    </p>
+                </div>
+                <div data-date="Etape 1: Protocoles et Couches">
+                    <h3>Etape 1: Protocoles et Couches</h3>
+                    <h4>Compréhension des Serveurs Web et Protocoles</h4>
+                    <p>
+                        Dans cette étape, nous avons entrepris la création d'un serveur web en langage C. Notre objectif principal était de mieux comprendre le fonctionnement des serveurs web et de la programmation des sockets, des éléments essentiels pour la communication sur le réseau.
+                    </p>
+                </div>
+                <div data-date="Etape 2: Création d'un Socket">
+                    <h3>Etape 2: Création d'un Socket</h3>
+                    <h4>Mise en place de la Communication Réseau</h4>
+                    <p>
+                        Ensuite, nous nous sommes lancés dans la création d'un socket en langage C, qui constitue le point de départ de notre serveur web. À travers des appels systèmes et des références aux pages de manuel, nous avons appris à créer et à gérer des sockets, pierre angulaire de la communication réseau.
+                    </p>
+                </div>
+                <div data-date="Etape 3: Liaison et Écoute">
+                    <h3>Etape 3: Liaison et Écoute</h3>
+                    <h4>Préparation du Serveur pour les Connexions Entrantes</h4>
+                    <p>
+                        Une fois le socket créé, nous l'avons lié à une adresse locale et mis en place son écoute pour les connexions entrantes. Cette étape est cruciale pour permettre au serveur web de recevoir et de traiter les demandes des clients.
+                    </p>
+                </div>
+                <div data-date="Etape 4: Acceptation des Connexions">
+                    <h3>Etape 4: Acceptation des Connexions</h3>
+                    <h4>Gestion des Connexions Entrantes</h4>
+                    <p>
+                        Nous avons ensuite décrit en détail le processus d'acceptation des connexions entrantes, qui consiste à créer un nouveau socket pour chaque connexion établie avec le serveur.
+                    </p>
+                </div>
+                <div data-date="Etape 5: Lecture et Réponse">
+                    <h3>Etape 5: Lecture et Réponse</h3>
+                    <h4>Communication avec les Clients</h4>
+                    <p>
+                        L'étape suivante a été d'apprendre à lire les requêtes HTTP des clients et à envoyer des réponses appropriées, en suivant le format et les règles du protocole HTTP. Cette étape est essentielle pour assurer une communication efficace entre le serveur web et les clients.
+                    </p>
+                </div>
+                <div data-date="Etape 6: Compilation et Test">
+                    <h3>Etape 6: Compilation et Test</h3>
+                    <h4>Vérification du Bon Fonctionnement</h4>
+                    <p>
+                        Enfin, nous avons expliqué comment compiler le serveur web et le tester en accédant à l'adresse locale via un navigateur. Cela nous a permis de vérifier le bon fonctionnement du serveur et de corriger d'éventuels problèmes rencontrés lors du développement.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!-- End #experience -->
+        <div id="education">
+            <h2 class="heading">Education</h2>
+            <div class="education-block">
+                <h3>University of Paris Nanterre</h3>
+                <span class="education-date">Sept 2023 - May 2024</span>
+                <h4>Bachelor of Science in Computer Science</h4>
+                <p>
+                    La double Licence en Économie Gestion (parcours Gestion) et en MIASHS (parcours MIAGE) offre aux étudiants la possibilité d'obtenir deux diplômes dès le début de leur cursus universitaire. Cette formation sélective permet aux étudiants d'être inscrits simultanément dans les deux programmes dès le premier semestre. Elle est accessible via un voeu spécifique sur Parcoursup.
+
+                    La Licence 3 (L3) de cette double Licence permet aux étudiants de se spécialiser à la fois en informatique et en gestion. Elle vise à fournir des bases solides dans tous les domaines de l'informatique et du management avant de se spécialiser davantage au niveau du master.
+                </p>
+            </div>
+        </div>
+        <div id="contact">
+            <h2>Get in Touch</h2>
+            <div id="contact-form">
+                <form action="https://formspree.io/f/moqgpgbb" method="POST">
+                    <label>
+                        Your email:
+                        <input type="email" name="email">
+                    </label>
+                    <label>
+                        Your message:
+                        <textarea name="message"></textarea>
+                    </label>
+                    <button type="submit">Send</button>
+                </form>
+            </div>
+        </div>
+        <footer>
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-5 copyright">
+                        <p>
+                            Copyright © Saida , Ermanno , Alexis
+                        </p>
+                    </div>
+                    <div class="col-sm-2 top">
+                        <span id="to-top">
+                            <i aria-hidden="true" class="fa fa-chevron-up"></i>
+                        </span>
+                    </div>
+                    <div class="col-sm-5 social">
+                        <ul>
+                            <li>
+                                <a href="https://github.com/chaisebasse/http-server" target="_blank"><i aria-hidden="true" class="fa fa-github"></i></a>
+                            </li>
+                            <li>
+                                <a href="https://www.facebook.com/universite.paris.nanterre/" target="_blank"><i aria-hidden="true" class="fa fa-facebook"></i></a>
+                            </li>
+                            <li>
+                                <a href="https://moacloud.com/iframe/wDLTOwzI0n" target="_blank"><i aria-hidden="true" class="fa-solid fa-jedi"></i></a>
+                            </li>
+                            <li>
+                                <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank"><i aria-hidden="true" class="fa-solid fa-book-journal-whills"></i></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <script src="jquery.min.js"></script>
+        <script src="scripts.min.js"></script>
+    </body>
 </html>
