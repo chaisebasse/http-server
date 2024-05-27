@@ -8,7 +8,7 @@
 #define PORT 8080
 #define BUFFER_SIZE 2048
 
-const char *path_page = "/home/alex/nanterre/http-server/test_web/"; // mettre le chemin vers la page html
+const char *path_page = "./fichiers_site"; // mettre le chemin vers la page html
 
 void serve_file(int client_socket, const char *file_path, const char *file_extension);
 void handle_client(int client_socket, struct sockaddr_in client_addr);
@@ -20,6 +20,7 @@ int main() {
     if (sockfd == -1) {
         // afficher ce message et le message d'erreur du système avec perror
         perror("webserver (socket)");
+        printf("\n");
         return 1;
     }
     printf("Socket créé avec succès\n");
@@ -29,6 +30,7 @@ int main() {
     if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable)) < 0) {
         // afficher ce message et le message d'erreur du système avec perror
         perror("webserver (setsockopt)");
+        printf("\n");
         return 1;
     }
 
@@ -47,6 +49,7 @@ int main() {
     if (bind(sockfd, (struct sockaddr *)&host_addr, host_addrlen) != 0) {
         // afficher ce message et le message d'erreur du système avec perror
         perror("webserver (bind)");
+        printf("\n");
         return 1;
     }
     printf("Socket lié à une addresse avec succès\n");
@@ -55,9 +58,12 @@ int main() {
     if (listen(sockfd, SOMAXCONN) != 0) {
         // afficher ce message et le message d'erreur du système avec perror
         perror("webserver (listen)");
+        printf("\n");
         return 1;
     }
     printf("Serveur en écoute pour des connections\n");
+    printf("http://localhost:8080/\n");
+    printf("\n");
 
     // Accepter les connections en attente
     for (;;) {
@@ -67,6 +73,7 @@ int main() {
         if (newsockfd < 0) {
             // afficher ce message et le message d'erreur du système avec perror
             perror("webserver (accept)");
+            printf("\n");
             continue;
         }
 
@@ -79,6 +86,7 @@ int main() {
         if (sockn < 0) {
             // afficher ce message et le message d'erreur du système avec perror
             perror("webserver (getsockname)");
+            printf("\n");
             continue;
         }
 
@@ -93,73 +101,74 @@ int main() {
 }
 
 void handle_client(int client_socket, struct sockaddr_in client_addr) {
-    // Ce buffer sert a lire les données entrantes du client
-    char buffer[BUFFER_SIZE];
+  // Ce buffer sert a lire les données entrantes du client
+  char buffer[BUFFER_SIZE];
 
-    // Lire dans le socket
+  // Lire dans le socket
+  int valread = read(client_socket, buffer, BUFFER_SIZE);
+  if (valread < 0) {
+    // afficher ce message et le message d'erreur du système avec perror
+    perror("webserver (read)");
+    printf("\n");
+    return;
+  }
 
-    int valread = read(client_socket, buffer, BUFFER_SIZE);
-    if (valread < 0) {
-        // afficher ce message et le message d'erreur du système avec perror
-        perror("webserver (read)");
-        return;
+  // Lire la requête
+
+  // On initialise la méthode de la requête (<method>), le chemin (<path>) et la version (<version>)
+  char method[BUFFER_SIZE], uri[BUFFER_SIZE], version[BUFFER_SIZE];
+  // On lit les trois éléments du buffer
+  sscanf(buffer, "%s %s %s", method, uri, version);
+  // On affiche la représentation en string du port, de l'adresse IP du client et de ses requêtes
+  printf("[%s:%u] %s %s %s\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), method, uri, version);
+
+  // Déterminer le chemin requêté
+  char file_path[BUFFER_SIZE];
+  const char *subfolder_path = path_page;
+
+  if (strlen(uri) == 0 || strcmp(uri, "/") == 0) {
+    // Gérer le cas où aucun chemin spécifique n'est requêté
+    snprintf(file_path, sizeof(file_path), "%s/index.html", subfolder_path);
+  } else {
+    // Construire le fichier selon le chemin requêté
+    // Calculer la taille max de l'URI
+    int max_uri_length = sizeof(file_path) - strlen(subfolder_path) - 1;
+    // Prendre la taille de l'URI
+    int uri_length = strlen(uri);
+
+    // S'assurer que la taille de l'URI n'excède pas la taille max
+    if (uri_length > max_uri_length) {
+      uri_length = max_uri_length; // Écorcher si nécessaire
     }
 
-    // Lire la requête
+    // Copier l'URI dans file_path avec le bon format
+    snprintf(file_path, sizeof(file_path), "%s%s", subfolder_path, uri);
 
-    // On initialise la méthode de la requête (<method>), le chemin (<path>) et la version (<version>)
-    char method[BUFFER_SIZE], uri[BUFFER_SIZE], version[BUFFER_SIZE];
-    // On lit les trois éléments du buffer
-    sscanf(buffer, "%s %s %s", method, uri, version);
-    // On affiche la représentation en string du port, de l'adresse IP du client et de ses requêtes
-    printf("[%s:%u] %s %s %s\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port), method, uri, version);
+    // S'assurer que file_path se termine avec NULL
+    file_path[sizeof(file_path) - 1] = '\0';
+  }
 
-    // Déterminer le chemin requêté
-    char file_path[BUFFER_SIZE];
-    const char *subfolder_path = path_page;
+  // Déterminer l'extension du fichier selon l'URI
+  const char *file_extension = strrchr(uri, '.');
+  if (file_extension != NULL) {
+    file_extension++; // On passe le '.' qui précède le nom de l'extension
+  }
 
-    if (strlen(uri) == 0 || strcmp(uri, "/") == 0) {
-        // Gérer le cas où aucun chemin spécifique n'est requêté
-        snprintf(file_path, sizeof(file_path), "%sindex.html", subfolder_path);
-    } else {
-        // Construire le fichier selon le chemin requêté
-        // Calculer la taille max de l'URI
-        int max_uri_length = sizeof(file_path) - strlen(subfolder_path) - 1;
-        // Prendre la taille de l'URI
-        int uri_length = strlen(uri);
+  // Appel de la fonction servant le fichier demandé
+  serve_file(client_socket, file_path, file_extension);
 
-        // S'assurer que la taille de l'URI n'excède pas la taille max
-        if (uri_length > max_uri_length) {
-            uri_length = max_uri_length; // Écorcher si nécessaire
-        }
-
-        // Copier l'URI dans file_path avec le bon format
-        // snprintf(file_path, sizeof(file_path), "%s%s", subfolder_path, uri);
-        snprintf(file_path, sizeof(file_path), "%s%s", subfolder_path, uri);
-
-        // S'assurer que file_path se termine avec NULL
-        file_path[sizeof(file_path) - 1] = '\0';
-    }
-
-    // Déterminer l'extension du fichier selon l'URI
-    const char *file_extension = strrchr(uri, '.');
-    if (file_extension != NULL) {
-        file_extension++; // On passe le '.' qui précède le nom de l'extension
-    }
-
-    // Appel de la fonction servant le fichier demandé
-    serve_file(client_socket, file_path, file_extension);
-
-    // Fermer la connection à la fin des intéractions
-    close(client_socket);
+  // Fermer la connection à la fin des intéractions
+  close(client_socket);
 }
 
 void serve_file(int client_socket, const char *file_path, const char *file_extension) {
     // Ouvrir le fichier en mode lecture binaire
+    printf("%s\n", file_path);
     FILE *file = fopen(file_path, "rb");
     if (file == NULL) {
         // afficher ce message et le message d'erreur du système avec perror
         perror("webserver (fopen)");
+        printf("\n");
         // Répondre avec Error 404 si le fichier n'existe pas
         const char *not_found_msg = "HTTP/1.0 404 Not Found\r\n\r\n<html><body><h1>404 Not Found</h1></body></html>\r\n";
         write(client_socket, not_found_msg, strlen(not_found_msg));
@@ -186,9 +195,12 @@ void serve_file(int client_socket, const char *file_path, const char *file_exten
         if (write(client_socket, buffer, bytes_read) < 0) {
             // afficher ce message et le message d'erreur du système avec perror
             perror("webserver (write)");
+            printf("\n");
             break;
         }
     }
+
+    printf("\n");
 
     // Fermer le fichier
     fclose(file);
