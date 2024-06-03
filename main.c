@@ -146,6 +146,12 @@ void handle_client(int client_socket, struct sockaddr_in client_addr) {
 
     // S'assurer que file_path se termine avec NULL
     file_path[sizeof(file_path) - 1] = '\0';
+
+    if (strstr(file_path, "..")) {
+      const char *not_found_msg = "HTTP/1.0 404 Not Found\r\n\r\n<html><body><h1>404 Not Found</h1></body></html>\r\n";
+      write(client_socket, not_found_msg, strlen(not_found_msg));
+      return;
+    }
   }
 
   // Déterminer l'extension du fichier selon l'URI
