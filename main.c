@@ -1,18 +1,26 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <arpa/inet.h>
 #include <errno.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <pthread.h>
 
 #define PORT 8080
 #define BUFFER_SIZE 2048
 
 const char *path_page = "./fichiers_site"; // mettre le chemin vers la page html
 
+void *thread_function(void *arg);
 void serve_file(int client_socket, const char *file_path, const char *file_extension);
 void handle_client(int client_socket, struct sockaddr_in client_addr);
 const char *get_content_type(const char *file_path);
+
+typedef struct {
+    int client_socket;
+    struct sockaddr_in client_addr;
+} client_info;
 
 int main() {
     // Création du socket
@@ -28,7 +36,6 @@ int main() {
     // Permettre la réutilisation de l'adresse
     int enable = 1;
     if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable)) < 0) {
-        // afficher ce message et le message d'erreur du système avec perror
         perror("webserver (setsockopt)");
         printf("\n");
         return 1;
@@ -36,17 +43,12 @@ int main() {
 
     // Bind le socket à l'addresse
     struct sockaddr_in host_addr;
-    int host_addrlen = sizeof(host_addr);
     host_addr.sin_family = AF_INET;
     host_addr.sin_port = htons(PORT);
     host_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    // Déclaration de l'adresse du client et sa taille
-    struct sockaddr_in client_addr;
-    int client_addrlen = sizeof(client_addr);
-
     // Paramètres de la fonction : adresse choisie convertie en type accepté par la fonction, taille de l'adresse
-    if (bind(sockfd, (struct sockaddr *)&host_addr, host_addrlen) != 0) {
+    if (bind(sockfd, (struct sockaddr *)&host_addr, sizeof(host_addr)) != 0) {
         // afficher ce message et le message d'erreur du système avec perror
         perror("webserver (bind)");
         printf("\n");
@@ -62,14 +64,18 @@ int main() {
         return 1;
     }
     printf("Serveur en écoute pour des connections\n");
-    printf("http://localhost:8080/\n");
+    printf("http://localhost:%d/\n", PORT);
     printf("\n");
 
     // Accepter les connections en attente
-    for (;;) {
+    while (1) {
+        // Déclaration de l'adresse du client et sa taille
+        struct sockaddr_in client_addr;
+        socklen_t client_addrlen = sizeof(client_addr);
+
         // On travaille ici avec le socket accepté
         // Paramètres : socket, adresse du socket avec transtypage, taille de l'adresse avec transtypage
-        int newsockfd = accept(sockfd, (struct sockaddr *)&host_addr, (socklen_t *)&host_addrlen);
+        int newsockfd = accept(sockfd, (struct sockaddr *)&client_addr, &client_addrlen);
         if (newsockfd < 0) {
             // afficher ce message et le message d'erreur du système avec perror
             perror("webserver (accept)");
@@ -81,23 +87,38 @@ int main() {
 
         // Prendre l'adresse du client
 
-        // Paramètres : socket, adresse du client avec transtypage, taille de l'adresse avec transtypage
-        int sockn = getsockname(newsockfd, (struct sockaddr *)&client_addr, (socklen_t *)&client_addrlen);
-        if (sockn < 0) {
-            // afficher ce message et le message d'erreur du système avec perror
-            perror("webserver (getsockname)");
+        client_info *info = malloc(sizeof(client_info));
+        info->client_socket = newsockfd;
+        info->client_addr = client_addr;
+
+
+        // Création du thread pour gérer plusieurs connections à la fois
+        pthread_t thread;
+        if (pthread_create(&thread, NULL, thread_function, (void *)info) != 0) {
+            perror("webserver (pthread_create)");
             printf("\n");
+
+            close(newsockfd);
+            free(info);
             continue;
         }
 
-        // Appel de la fonction gérant le client
-        handle_client(newsockfd, client_addr);
+        pthread_detach(thread);
 
-        // Fermer la connection à la fin des intéractions
-        close(newsockfd);
     }
 
+    // Fermer la connection à la fin des intéractions
+    close(sockfd);
     return 0;
+}
+
+void *thread_function(void *arg) {
+  client_info *info = (client_info *)arg;
+  handle_client(info->client_socket, info->client_addr);
+
+  close(info->client_socket);
+  free(info);
+  return NULL;
 }
 
 void handle_client(int client_socket, struct sockaddr_in client_addr) {
@@ -147,6 +168,8 @@ void handle_client(int client_socket, struct sockaddr_in client_addr) {
     // S'assurer que file_path se termine avec NULL
     file_path[sizeof(file_path) - 1] = '\0';
 
+
+    // vérifier que l'utilisateur ne tente pas une attaque de traversée de répertoire
     if (strstr(file_path, "..")) {
       const char *not_found_msg = "HTTP/1.0 404 Not Found\r\n\r\n<html><body><h1>404 Not Found</h1></body></html>\r\n";
       write(client_socket, not_found_msg, strlen(not_found_msg));
